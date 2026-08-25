@@ -8,7 +8,11 @@ or, once merged, docs/decisions/ and the project checklist).
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import typer
+
+from radar.sicap.capture import format_inventory, run_capture
 
 app = typer.Typer(
     name="radar",
@@ -35,13 +39,29 @@ def backfill(
 @app.command()
 def capture(
     name: str = typer.Option(..., "--name", help="Fixture name, e.g. direct-list"),
-    curl_file: str = typer.Option(..., "--curl-file", help="Path to a saved 'Copy as cURL'"),
+    curl_file: Path = typer.Option(
+        ..., "--curl-file", help="Path to a saved 'Copy as cURL (bash)' command", exists=True
+    ),
+    fixtures_dir: Path = typer.Option(Path("tests/fixtures"), "--fixtures-dir", hidden=True),
 ) -> None:
     """Replay a captured cURL request, save the response as a fixture, and
-    print a field inventory. Lands with W1-07 — this is the tool you'll use
-    to turn the Day 2 DevTools pass (W1-08) into committed fixtures.
+    print a field inventory.
+
+    Workflow: in Chrome DevTools → Network, right-click the request →
+    Copy → Copy as cURL (bash). Paste it into a file, then:
+
+        radar capture --name direct-list --curl-file /tmp/curl.txt
+
+    Saves tests/fixtures/<name>.json (the response) and
+    tests/fixtures/<name>.meta.json (the request that produced it), and
+    prints a field inventory so you can eyeball VAT/currency/id-grain
+    questions without reading raw JSON by hand. See docs/sicap-endpoints.md.
     """
-    raise NotImplementedError("capture lands with W1-07 — see checklist")
+    result = run_capture(name=name, curl_text=curl_file.read_text(), fixtures_dir=fixtures_dir)
+    typer.echo(f"saved {result.fixture_path} (HTTP {result.status_code})")
+    typer.echo(f"saved {result.meta_path}")
+    typer.echo("")
+    typer.echo(format_inventory(result.inventory))
 
 
 if __name__ == "__main__":
