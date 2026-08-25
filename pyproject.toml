@@ -1,0 +1,44 @@
+[project]
+name = "radar"
+version = "0.1.0"
+description = "Risk-indicator engine over Romanian public procurement data (SICAP / e-licitatie.ro)."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "httpx>=0.27",
+    "pydantic>=2.7",
+    "duckdb>=1.0",
+    "dbt-duckdb>=1.8",
+    "rapidfuzz>=3.9",
+    "unidecode>=1.3",
+    "typer>=0.12",
+]
+
+[project.scripts]
+radar = "radar.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/radar"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "respx>=0.21",   # httpx mocking, for W1-11's transport tests
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,32 @@
+# Data — everything under data/ is derived or cached, never committed.
+data/*
+!data/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# dbt
+transform/target/
+transform/dbt_packages/
+transform/logs/
+
+# Evidence.dev
+app/.evidence/
+app/node_modules/
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Env / secrets
+.env
+.env.*
+!.env.example

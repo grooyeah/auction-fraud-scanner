@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Test
+        run: uv run pytest
+
+      # Wired in from W1-20 onward, once transform/ has models to build.
+      # - name: dbt build (against fixtures)
+      #   run: cd transform && uv run dbt build
+
+      # Wired in from W2-03 onward, once the entity gold set and narrative
+      # eval cases exist.
+      # - name: Eval
+      #   run: uv run python -m radar.eval
